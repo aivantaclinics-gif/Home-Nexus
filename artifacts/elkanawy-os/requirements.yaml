@@ -1,0 +1,19 @@
+packages:
+  "framer-motion": "For cinematic micro-animations, spring physics, and page transitions"
+  "recharts": "For the energy monitoring area chart"
+  "clsx": "Utility for constructing className strings conditionally"
+  "tailwind-merge": "Utility for merging tailwind classes without style conflicts"
+  "date-fns": "For formatting dates in automations and dashboard"
+
+images:
+  - path: "artifacts/elkanawy-os/public/images/space-bg.png"
+    description: "Deep space abstract dark gradient mesh with very subtle electric blue and violet neon nebulas, extremely minimal and dark, premium tech aesthetic"
+    aspect_ratio: "9:16"
+  - path: "artifacts/elkanawy-os/public/images/user-avatar.png"
+    description: "Minimalist futuristic user avatar placeholder, abstract geometric human silhouette in glowing neon blue on pitch black background"
+    aspect_ratio: "1:1"
+
+notes:
+  - "Using @workspace/api-client-react for TanStack query hooks"
+  - "App forces dark mode for the premium Tesla-like aesthetic"
+  - "Google Auth flow is simulated for UI purposes as real OAuth requires strict domain configs"

@@ -1,15 +1,22 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Elkanawy OS Smart Home API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication operations
+  - name: devices
+    description: Smart home device operations
+  - name: rooms
+    description: Room management
+  - name: automations
+    description: Automation rules
 paths:
   /healthz:
     get:
@@ -24,6 +31,288 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /auth/user:
+    get:
+      operationId: getCurrentUser
+      tags: [auth]
+      summary: Get current authenticated user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/google:
+    post:
+      operationId: googleSignIn
+      tags: [auth]
+      summary: Sign in with Google
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GoogleSignInRequest"
+      responses:
+        "200":
+          description: Signed in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Unauthorized
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Log out
+      responses:
+        "200":
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /rooms:
+    get:
+      operationId: getRooms
+      tags: [rooms]
+      summary: Get all rooms
+      responses:
+        "200":
+          description: List of rooms
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Room"
+    post:
+      operationId: createRoom
+      tags: [rooms]
+      summary: Create a new room
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateRoomRequest"
+      responses:
+        "201":
+          description: Room created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Room"
+
+  /rooms/{roomId}:
+    get:
+      operationId: getRoom
+      tags: [rooms]
+      summary: Get a specific room
+      parameters:
+        - name: roomId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Room details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Room"
+        "404":
+          description: Room not found
+
+  /devices:
+    get:
+      operationId: getDevices
+      tags: [devices]
+      summary: Get all devices
+      parameters:
+        - name: roomId
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of devices
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Device"
+    post:
+      operationId: createDevice
+      tags: [devices]
+      summary: Create a new device
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateDeviceRequest"
+      responses:
+        "201":
+          description: Device created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Device"
+
+  /devices/{deviceId}:
+    get:
+      operationId: getDevice
+      tags: [devices]
+      summary: Get a specific device
+      parameters:
+        - name: deviceId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Device details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Device"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateDevice
+      tags: [devices]
+      summary: Update device state
+      parameters:
+        - name: deviceId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateDeviceRequest"
+      responses:
+        "200":
+          description: Device updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Device"
+
+  /devices/{deviceId}/toggle:
+    post:
+      operationId: toggleDevice
+      tags: [devices]
+      summary: Toggle device on/off
+      parameters:
+        - name: deviceId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Device toggled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Device"
+
+  /automations:
+    get:
+      operationId: getAutomations
+      tags: [automations]
+      summary: Get all automation rules
+      responses:
+        "200":
+          description: List of automations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Automation"
+    post:
+      operationId: createAutomation
+      tags: [automations]
+      summary: Create an automation rule
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAutomationRequest"
+      responses:
+        "201":
+          description: Automation created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Automation"
+
+  /automations/{automationId}:
+    patch:
+      operationId: updateAutomation
+      tags: [automations]
+      summary: Update an automation rule
+      parameters:
+        - name: automationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAutomationRequest"
+      responses:
+        "200":
+          description: Automation updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Automation"
+    delete:
+      operationId: deleteAutomation
+      tags: [automations]
+      summary: Delete an automation rule
+      parameters:
+        - name: automationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +323,270 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+      required:
+        - error
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+      required:
+        - success
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        googleId:
+          type: string
+        email:
+          type: string
+        name:
+          type: string
+        avatarUrl:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - email
+        - name
+        - createdAt
+
+    GoogleSignInRequest:
+      type: object
+      properties:
+        credential:
+          type: string
+        clientId:
+          type: string
+      required:
+        - credential
+
+    AuthResponse:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        token:
+          type: string
+      required:
+        - user
+        - token
+
+    Room:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        icon:
+          type: string
+        userId:
+          type: integer
+        deviceCount:
+          type: integer
+        activeCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - icon
+        - userId
+        - deviceCount
+        - activeCount
+        - createdAt
+
+    CreateRoomRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        icon:
+          type: string
+      required:
+        - name
+        - icon
+
+    Device:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        type:
+          type: string
+          enum: [light, fan, ac, thermostat, lock, camera, speaker, tv]
+        isOn:
+          type: boolean
+        roomId:
+          type: integer
+        userId:
+          type: integer
+        value:
+          type: number
+          nullable: true
+          description: Numeric value (brightness, temperature, fan speed, etc.)
+        unit:
+          type: string
+          nullable: true
+          description: Unit for value (%, °C, etc.)
+        powerUsage:
+          type: number
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - type
+        - isOn
+        - roomId
+        - userId
+        - createdAt
+        - updatedAt
+
+    CreateDeviceRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+          enum: [light, fan, ac, thermostat, lock, camera, speaker, tv]
+        roomId:
+          type: integer
+        value:
+          type: number
+          nullable: true
+        unit:
+          type: string
+          nullable: true
+      required:
+        - name
+        - type
+        - roomId
+
+    UpdateDeviceRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        isOn:
+          type: boolean
+        value:
+          type: number
+          nullable: true
+        unit:
+          type: string
+          nullable: true
+
+    Automation:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        deviceId:
+          type: integer
+        action:
+          type: string
+          enum: [turn_on, turn_off, set_value]
+        triggerType:
+          type: string
+          enum: [schedule, sunset, sunrise, manual]
+        triggerTime:
+          type: string
+          nullable: true
+          description: Time in HH:MM format for schedule triggers
+        triggerDays:
+          type: string
+          nullable: true
+          description: Comma-separated days (mon,tue,wed...)
+        value:
+          type: number
+          nullable: true
+        isEnabled:
+          type: boolean
+        userId:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - deviceId
+        - action
+        - triggerType
+        - isEnabled
+        - userId
+        - createdAt
+
+    CreateAutomationRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        deviceId:
+          type: integer
+        action:
+          type: string
+          enum: [turn_on, turn_off, set_value]
+        triggerType:
+          type: string
+          enum: [schedule, sunset, sunrise, manual]
+        triggerTime:
+          type: string
+          nullable: true
+        triggerDays:
+          type: string
+          nullable: true
+        value:
+          type: number
+          nullable: true
+      required:
+        - name
+        - deviceId
+        - action
+        - triggerType
+
+    UpdateAutomationRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        isEnabled:
+          type: boolean
+        triggerTime:
+          type: string
+          nullable: true
+        triggerDays:
+          type: string
+          nullable: true
+        value:
+          type: number
+          nullable: true
